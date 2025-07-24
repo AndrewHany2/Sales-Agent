@@ -8,7 +8,7 @@
     "start": "node src",
     "clean": "rimraf ./dist",
     "local": "ts-node src/index.ts",
-    "local:watch": "nodemon src -e ts,json --exec \"npm run local\""
+    "dev": "nodemon src -e ts,json --exec \"npm run local\""
   },
   "author": "",
   "license": "ISC",
