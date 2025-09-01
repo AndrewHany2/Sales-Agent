@@ -8,7 +8,12 @@
     "start": "node src",
     "clean": "rimraf ./dist",
     "local": "ts-node src/index.ts",
-    "dev": "nodemon src -e ts,json --exec \"npm run local\""
+    "dev": "nodemon src -e ts,json --exec \"npm run local\"",
+    "db:pull": "prisma db pull",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --name init",
+    "prisma:rebuild": "npm run clean && npm run migrate && npm run db:pull && npm run db:push"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +29,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@google/genai": "^1.16.0",
     "@prisma/client": "^6.12.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",

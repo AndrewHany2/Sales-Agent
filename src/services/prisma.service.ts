@@ -12,7 +12,7 @@ const prisma = new PrismaClient({
 });
 
 if (process.env.NODE_ENV === 'development') {
-    prisma.$on('query', (e) => {
+    prisma.$on('query', (e: { query: string; params: string; duration: number }) => {
         console.log(`Query: ${e.query} \nParams: ${e.params} \nDuration: ${e.duration}ms`);
     });
 }
