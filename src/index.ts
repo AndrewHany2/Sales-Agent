@@ -2,17 +2,12 @@ import prismaService from './services/prisma.service';
 import express from 'express';
 import cors from 'cors';
 import router from './routes/api.route';
-import { geminiService } from './services/gemini.service';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(`/api/v1`, router);
 
-(async () => {
-  const response = await geminiService.generateContent('Hello, how are you?');
-  console.log(response)
-})()
 const server = app.listen(process.env.PORT || 3000, async () => {
   console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });
