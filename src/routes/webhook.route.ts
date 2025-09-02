@@ -1,25 +1,9 @@
 import { Router } from "express";
+import webhookController from "../controllers/webhook.controller";
 
 const router = Router({ mergeParams: true });
 
-router.get('/', async (req, res) => {
-    try {
-        const VERIFY_TOKEN = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
-        const mode = req.query['hub.mode'];
-        const token = req.query['hub.verify_token'];
-        const challenge = req.query['hub.challenge'];
-        if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-            console.log('Webhook verified!');
-            res.status(200).send(challenge); // Respond with the challenge token
-        } else {
-            res.sendStatus(403); // Forbidden
-        }
-
-    } catch (error) {
-        console.error('Error handling webhook:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
+router.get('/', webhookController.verifyFacebookWebhook);
 
 router.post('/', (req, res) => {
     const body = req.body;
