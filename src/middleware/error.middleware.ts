@@ -1,28 +1,24 @@
 import { Request, Response, NextFunction } from "express";
-import ApiError from "../utils/api.error";
+import { Logger } from "../utils/logger";
 
-const errorHandler = (
+export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
   next: NextFunction
-) => {
-  console.error(err.stack);
+): void => {
+  Logger.error("Unhandled error", err);
 
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  let message = err.message;
-
-  if (err instanceof ApiError) {
-    statusCode = err.statusCode;
-    message = err.message;
-  }
-
-  res.status(statusCode);
-
-  res.json({
-    message: message,
-    stack: process.env.NODE_ENV === "production" ? "#&#337;" : err.stack,
+  res.status(500).json({
+    success: false,
+    error: "Internal server error",
+    message: process.env.NODE_ENV === "development" ? err.message : undefined,
   });
 };
 
-export { errorHandler };
+export const notFoundHandler = (req: Request, res: Response): void => {
+  res.status(404).json({
+    success: false,
+    error: "Route not found",
+  });
+};

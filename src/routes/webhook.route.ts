@@ -1,35 +1,73 @@
-import { Router } from "express";
-import webhookController from "../controllers/webhook.controller";
+import { Router, Request, Response } from "express";
+import { PlatformManager } from "../services/platformManager.service";
+import { config } from "../config";
 
-const router = Router({ mergeParams: true });
+export const createWebhookRoutes = (
+  platformManager: PlatformManager
+): Router => {
+  const router = Router();
 
-router.get('/', webhookController.verifyFacebookWebhook);
+  // Facebook & Instagram webhook verification
+  router.get("/facebook", (req: Request, res: Response) => {
+    const mode = req.query["hub.mode"];
+    const token = req.query["hub.verify_token"];
+    const challenge = req.query["hub.challenge"];
 
-router.post('/', (req, res) => {
-    const body = req.body;
-
-    // Check if this is a page subscription
-    if (body.object === 'page') {
-        body.entry.forEach((entry: any) => {
-            // Get the message details
-            const webhookEvent = entry.messaging[0];
-            console.log('Incoming message:', webhookEvent);
-
-            // Extract sender ID and message text
-            const senderId = webhookEvent.sender.id;
-            const message = webhookEvent.message.text;
-
-            console.log(`Message from ${senderId}: ${message}`);
-
-            // You can now process the message or send a response
-        });
-
-        // Respond to Facebook to acknowledge receipt of the event
-        res.status(200).send('EVENT_RECEIVED');
+    if (mode && token === config.platforms.facebook.verifyToken) {
+      res.status(200).send(challenge);
     } else {
-        // Return a 404 if the event is not from a page subscription
-        res.sendStatus(404);
+      res.sendStatus(403);
     }
-});
+  });
 
-export default router;
+  router.post("/facebook", (req: Request, res: Response) => {
+    platformManager.handleWebhook("facebook", req.body);
+    res.sendStatus(200);
+  });
+
+  router.post("/instagram", (req: Request, res: Response) => {
+    platformManager.handleWebhook("instagram", req.body);
+    res.sendStatus(200);
+  });
+
+  // Telegram webhook
+  router.post("/telegram", (req: Request, res: Response) => {
+    platformManager.handleWebhook("telegram", req.body);
+    res.sendStatus(200);
+  });
+
+  // WhatsApp webhook
+  router.get("/whatsapp", (req: Request, res: Response) => {
+    const mode = req.query["hub.mode"];
+    const token = req.query["hub.verify_token"];
+    const challenge = req.query["hub.challenge"];
+
+    if (mode && token === config.platforms.facebook.verifyToken) {
+      res.status(200).send(challenge);
+    } else {
+      res.sendStatus(403);
+    }
+  });
+
+  router.post("/whatsapp", (req: Request, res: Response) => {
+    platformManager.handleWebhook("whatsapp", req.body);
+    res.sendStatus(200);
+  });
+
+  // Slack webhook
+  router.post("/slack", (req: Request, res: Response) => {
+    if (req.body.type === "url_verification") {
+      return res.json({ challenge: req.body.challenge });
+    }
+    platformManager.handleWebhook("slack", req.body);
+    res.sendStatus(200);
+  });
+
+  // Twitter webhook
+  router.post("/twitter", (req: Request, res: Response) => {
+    platformManager.handleWebhook("twitter", req.body);
+    res.sendStatus(200);
+  });
+
+  return router;
+};
