@@ -1,4 +1,4 @@
-import { Response, Request } from "express";
+import { Response, Request } from 'express';
 
 interface ApiResponse<T> {
   statusCode: number;
@@ -16,7 +16,7 @@ const successResponse = <T>(
   res: Response,
   params: SuccessResponseParams<T>
 ): Response<ApiResponse<T>> => {
-  const { result, statusCode = 200, message = "Success" } = params;
+  const { result, statusCode = 200, message = 'Success' } = params;
   return res.status(statusCode).json({
     statusCode,
     message,

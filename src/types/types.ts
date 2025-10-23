@@ -1,6 +1,6 @@
 interface PlatformConfig {
   enabled: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface Config {
@@ -48,13 +48,13 @@ interface Message {
 
 interface SendMessageResult {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
 }
 
 interface PlatformAdapter {
   sendMessage(recipient: string, text: string): Promise<SendMessageResult>;
-  handleWebhook(data: any): void;
+  handleWebhook(data: unknown): void;
 }
 
 export { PlatformAdapter, SendMessageResult, Message, Config };

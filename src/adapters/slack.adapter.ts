@@ -1,12 +1,12 @@
-import axios, { AxiosResponse } from "axios";
-import { BaseAdapter } from "./base.adapter";
-import { SendMessageResult, Config, Message } from "../types/types";
-import { Logger } from "../utils/logger";
+import axios, { AxiosResponse } from 'axios';
+import { BaseAdapter } from './base.adapter';
+import { SendMessageResult, Config, Message } from '../types/types';
+import { Logger } from '../utils/logger';
 
 export class SlackAdapter extends BaseAdapter {
-  private baseUrl: string = "https://slack.com/api";
+  private baseUrl: string = 'https://slack.com/api';
 
-  constructor(config: Config["platforms"]["slack"]) {
+  constructor(config: Config['platforms']['slack']) {
     super(config);
   }
 
@@ -18,22 +18,22 @@ export class SlackAdapter extends BaseAdapter {
         {
           headers: {
             Authorization: `Bearer ${this.config.botToken}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
       );
-      Logger.info("Slack message sent", { channel });
+      Logger.info('Slack message sent', { channel });
       return { success: true, data: response.data };
     } catch (error: any) {
-      Logger.error("Slack send error", error);
+      Logger.error('Slack send error', error);
       return this.handleError(error);
     }
   }
 
   handleWebhook(data: any): void {
-    if (data.event?.type === "message" && !data.event.bot_id) {
+    if (data.event?.type === 'message' && !data.event.bot_id) {
       const message: Message = {
-        platform: "slack",
+        platform: 'slack',
         senderId: data.event.user,
         channelId: data.event.channel,
         text: data.event.text,

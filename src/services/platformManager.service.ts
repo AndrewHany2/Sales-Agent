@@ -1,6 +1,6 @@
-import { config } from "../config";
-import { SendMessageResult, PlatformAdapter, Message } from "../types/types";
-import { MessageBus } from "./messageBus.service";
+import { config } from '../config';
+import { SendMessageResult, PlatformAdapter, Message } from '../types/types';
+import { MessageBus } from './messageBus.service';
 import {
   FacebookAdapter,
   InstagramAdapter,
@@ -8,11 +8,11 @@ import {
   WhatsAppAdapter,
   SlackAdapter,
   TwitterAdapter,
-} from "../adapters";
-import { Logger } from "../utils/logger";
+} from '../adapters';
+import { Logger } from '../utils/logger';
 
 export class PlatformManager {
-  private adapters: Record<string, any>;
+  private adapters: Record<string, PlatformAdapter>;
   private messageBus: MessageBus;
 
   constructor(messageBus: MessageBus) {
@@ -26,35 +26,34 @@ export class PlatformManager {
       twitter: new TwitterAdapter(config.platforms.twitter),
     };
 
-    // Inject message emitter into adapters
-    Object.values(this.adapters).forEach((adapter: any) => {
-      adapter.emitMessage = (message: Message) => {
-        this.messageBus.addMessage(message);
-      };
+    // Inject message emitter into adapters via a setter to respect visibility
+    Object.values(this.adapters).forEach((adapter) => {
+      // adapters are instances of BaseAdapter subclasses; call setEmitter if available
+      (adapter as unknown as { setEmitter?: (emit: (message: Message) => void) => void }).setEmitter?.(
+        (message: Message) => {
+          this.messageBus.addMessage(message);
+        }
+      );
     });
 
-    Logger.info("PlatformManager initialized");
+    Logger.info('PlatformManager initialized');
   }
 
-  async sendMessage(
-    platform: string,
-    recipient: string,
-    text: string
-  ): Promise<SendMessageResult> {
+  async sendMessage(platform: string, recipient: string, text: string): Promise<SendMessageResult> {
     const adapter = this.adapters[platform];
     if (!adapter) {
-      Logger.error("Platform not supported", { platform });
-      return { success: false, error: "Platform not supported" };
+      Logger.error('Platform not supported', { platform });
+      return { success: false, error: 'Platform not supported' };
     }
     return await adapter.sendMessage(recipient, text);
   }
 
-  handleWebhook(platform: string, data: any): void {
+  handleWebhook(platform: string, data: unknown): void {
     const adapter = this.adapters[platform];
     if (adapter) {
       adapter.handleWebhook(data);
     } else {
-      Logger.warn("Webhook received for unsupported platform", { platform });
+      Logger.warn('Webhook received for unsupported platform', { platform });
     }
   }
 
@@ -64,8 +63,7 @@ export class PlatformManager {
 
   getEnabledPlatforms(): string[] {
     return Object.keys(config.platforms).filter(
-      (platform) =>
-        config.platforms[platform as keyof typeof config.platforms].enabled
+      (platform) => config.platforms[platform as keyof typeof config.platforms].enabled
     );
   }
 }

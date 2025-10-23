@@ -1,6 +1,6 @@
-import { EventEmitter } from "events";
-import { Logger } from "../utils/logger";
-import { Message } from "../types/types";
+import { EventEmitter } from 'events';
+import { Logger } from '../utils/logger';
+import { Message } from '../types/types';
 
 export class MessageBus extends EventEmitter {
   private messages: Message[] = [];
@@ -14,8 +14,8 @@ export class MessageBus extends EventEmitter {
       this.messages = this.messages.slice(-this.maxMessages);
     }
 
-    this.emit("message", message);
-    Logger.info("New message received", {
+    this.emit('message', message);
+    Logger.info('New message received', {
       platform: message.platform,
       messageId: message.messageId,
     });
@@ -31,6 +31,6 @@ export class MessageBus extends EventEmitter {
 
   clearMessages(): void {
     this.messages = [];
-    Logger.info("Messages cleared");
+    Logger.info('Messages cleared');
   }
 }

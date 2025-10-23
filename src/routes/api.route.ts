@@ -1,8 +1,8 @@
-import { Router, Request, Response } from "express";
-import { PlatformManager } from "../services/platformManager.service";
-import { MessageBus } from "../services/messageBus.service";
-import { TelegramAdapter } from "../adapters";
-import { config } from "../config";
+import { Router, Request, Response } from 'express';
+import { PlatformManager } from '../services/platformManager.service';
+import { MessageBus } from '../services/messageBus.service';
+import { TelegramAdapter } from '../adapters';
+import { config } from '../config';
 
 export const createApiRoutes = (
   platformManager: PlatformManager,
@@ -11,12 +11,12 @@ export const createApiRoutes = (
   const router = Router();
 
   // Send message
-  router.post("/send", async (req: Request, res: Response) => {
+  router.post('/send', async (req: Request, res: Response) => {
     const { platform, recipient, text } = req.body;
 
     if (!platform || !recipient || !text) {
       return res.status(400).json({
-        error: "Missing required fields: platform, recipient, text",
+        error: 'Missing required fields: platform, recipient, text',
       });
     }
 
@@ -25,7 +25,7 @@ export const createApiRoutes = (
   });
 
   // Get messages
-  router.get("/messages", (req: Request, res: Response) => {
+  router.get('/messages', (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 50;
     const platform = req.query.platform as string;
 
@@ -39,7 +39,7 @@ export const createApiRoutes = (
   });
 
   // Get supported platforms
-  router.get("/platforms", (req: Request, res: Response) => {
+  router.get('/platforms', (req: Request, res: Response) => {
     const platforms = Object.keys(config.platforms).map((name) => ({
       name,
       enabled: config.platforms[name as keyof typeof config.platforms].enabled,
@@ -48,17 +48,17 @@ export const createApiRoutes = (
   });
 
   // Setup Telegram webhook
-  router.post("/setup/telegram", async (req: Request, res: Response) => {
+  router.post('/setup/telegram', async (req: Request, res: Response) => {
     const { webhookUrl } = req.body;
-    const adapter = platformManager.getAdapter("telegram") as TelegramAdapter;
+    const adapter = platformManager.getAdapter('telegram') as TelegramAdapter;
     const result = await adapter.setWebhook(webhookUrl);
     res.json(result);
   });
 
   // Clear messages
-  router.delete("/messages", (req: Request, res: Response) => {
+  router.delete('/messages', (req: Request, res: Response) => {
     messageBus.clearMessages();
-    res.json({ success: true, message: "Messages cleared" });
+    res.json({ success: true, message: 'Messages cleared' });
   });
 
   return router;

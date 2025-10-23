@@ -1,5 +1,5 @@
-import prisma from "../services/prisma.service";
-import { Request, Response } from "express";
+import prisma from '../services/prisma.service';
+import { Request, Response } from 'express';
 
 async function register(req: Request, res: Response) {
   const { email, name, password } = req.body;

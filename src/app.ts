@@ -1,8 +1,8 @@
-import express, { Application, Request, Response } from "express";
-import { MessageBus } from "./services/messageBus.service";
-import { PlatformManager } from "./services/platformManager.service";
-import { createRoutes } from "./routes";
-import { errorHandler, notFoundHandler } from "./middleware/error.middleware";
+import express, { Application, Request, Response } from 'express';
+import { MessageBus } from './services/messageBus.service';
+import { PlatformManager } from './services/platformManager.service';
+import { createRoutes } from './routes';
+import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
 export const createApp = (): {
   app: Application;
@@ -20,16 +20,16 @@ export const createApp = (): {
   const platformManager = new PlatformManager(messageBus);
 
   // Health check
-  app.get("/health", (req: Request, res: Response) => {
+  app.get('/health', (req: Request, res: Response) => {
     res.json({
-      status: "ok",
+      status: 'ok',
       timestamp: new Date().toISOString(),
       enabledPlatforms: platformManager.getEnabledPlatforms(),
     });
   });
 
   // Routes
-  app.use("/", createRoutes(platformManager, messageBus));
+  app.use('/', createRoutes(platformManager, messageBus));
 
   // Error handling
   app.use(notFoundHandler);

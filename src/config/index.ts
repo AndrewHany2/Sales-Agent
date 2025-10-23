@@ -1,4 +1,4 @@
-import { Config } from "../types/types";
+import { Config } from '../types/types';
 
 export const config: Config = {
   port: 3000,
@@ -7,7 +7,7 @@ export const config: Config = {
       enabled: false,
       pageAccessToken: process.env.FB_PAGE_ACCESS_TOKEN,
       verifyToken: process.env.FB_VERIFY_TOKEN,
-      apiVersion: "v18.0",
+      apiVersion: 'v18.0',
     },
     instagram: {
       enabled: false,
