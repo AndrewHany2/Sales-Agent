@@ -58,7 +58,7 @@ export const createWebhookRoutes = (platformManager: PlatformManager): Router =>
       return res.json({ challenge: req.body.challenge });
     }
     platformManager.handleWebhook('slack', req.body);
-    res.sendStatus(200);
+    return res.sendStatus(200);
   });
 
   // Twitter webhook

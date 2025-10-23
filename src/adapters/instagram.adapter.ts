@@ -19,7 +19,7 @@ export class InstagramAdapter extends BaseAdapter {
           message: { text },
         },
         {
-          params: { access_token: this.config.accessToken },
+          params: { access_token: (this.config as Config['platforms']['instagram']).accessToken },
         }
       );
       Logger.info('Instagram message sent', { recipientId });
@@ -49,7 +49,7 @@ export class InstagramAdapter extends BaseAdapter {
     }
   }
 
-  protected emitMessage(message: Message): void {
+  protected emitMessage(_message: Message): void {
     // This will be injected by PlatformManager
   }
 }

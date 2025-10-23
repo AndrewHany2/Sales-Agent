@@ -7,7 +7,7 @@ export class TwitterAdapter extends BaseAdapter {
     super(config);
   }
 
-  async sendMessage(recipientId: string, text: string): Promise<SendMessageResult> {
+  async sendMessage(_recipientId: string, _text: string): Promise<SendMessageResult> {
     Logger.warn('Twitter DM API not implemented');
     return {
       success: false,
@@ -32,7 +32,7 @@ export class TwitterAdapter extends BaseAdapter {
     }
   }
 
-  protected emitMessage(message: Message): void {
+  protected emitMessage(_message: Message): void {
     // This will be injected by PlatformManager
   }
 }

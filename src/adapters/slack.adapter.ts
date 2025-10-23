@@ -17,7 +17,7 @@ export class SlackAdapter extends BaseAdapter {
         { channel, text },
         {
           headers: {
-            Authorization: `Bearer ${this.config.botToken}`,
+            Authorization: `Bearer ${(this.config as Config['platforms']['slack']).botToken}`,
             'Content-Type': 'application/json',
           },
         }
@@ -44,7 +44,7 @@ export class SlackAdapter extends BaseAdapter {
     }
   }
 
-  protected emitMessage(message: Message): void {
+  protected emitMessage(_message: Message): void {
     // This will be injected by PlatformManager
   }
 }

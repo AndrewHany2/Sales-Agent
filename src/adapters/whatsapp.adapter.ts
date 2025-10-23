@@ -13,7 +13,7 @@ export class WhatsAppAdapter extends BaseAdapter {
   async sendMessage(recipientPhone: string, text: string): Promise<SendMessageResult> {
     try {
       const response: AxiosResponse = await axios.post(
-        `${this.baseUrl}/${this.config.phoneNumberId}/messages`,
+        `${this.baseUrl}/${(this.config as Config['platforms']['whatsapp']).phoneNumberId}/messages`,
         {
           messaging_product: 'whatsapp',
           to: recipientPhone,
@@ -21,7 +21,7 @@ export class WhatsAppAdapter extends BaseAdapter {
         },
         {
           headers: {
-            Authorization: `Bearer ${this.config.accessToken}`,
+            Authorization: `Bearer ${(this.config as Config['platforms']['whatsapp']).accessToken}`,
             'Content-Type': 'application/json',
           },
         }
@@ -55,7 +55,7 @@ export class WhatsAppAdapter extends BaseAdapter {
     });
   }
 
-  protected emitMessage(message: Message): void {
+  protected emitMessage(_message: Message): void {
     // This will be injected by PlatformManager
   }
 }

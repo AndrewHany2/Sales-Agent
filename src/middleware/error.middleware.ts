@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '../utils/logger';
 
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
+export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction): void => {
   Logger.error('Unhandled error', err);
 
   res.status(500).json({
@@ -11,7 +11,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
   });
 };
 
-export const notFoundHandler = (req: Request, res: Response): void => {
+export const notFoundHandler = (_req: Request, res: Response): void => {
   res.status(404).json({
     success: false,
     error: 'Route not found',

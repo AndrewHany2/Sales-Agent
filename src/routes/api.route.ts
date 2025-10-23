@@ -21,7 +21,7 @@ export const createApiRoutes = (
     }
 
     const result = await platformManager.sendMessage(platform, recipient, text);
-    res.json(result);
+    return res.json(result);
   });
 
   // Get messages
@@ -39,7 +39,7 @@ export const createApiRoutes = (
   });
 
   // Get supported platforms
-  router.get('/platforms', (req: Request, res: Response) => {
+  router.get('/platforms', (_req: Request, res: Response) => {
     const platforms = Object.keys(config.platforms).map((name) => ({
       name,
       enabled: config.platforms[name as keyof typeof config.platforms].enabled,
@@ -56,7 +56,7 @@ export const createApiRoutes = (
   });
 
   // Clear messages
-  router.delete('/messages', (req: Request, res: Response) => {
+  router.delete('/messages', (_req: Request, res: Response) => {
     messageBus.clearMessages();
     res.json({ success: true, message: 'Messages cleared' });
   });
