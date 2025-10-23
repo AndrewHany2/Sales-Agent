@@ -2,6 +2,7 @@ import { Config } from '../types/types';
 
 export const config: Config = {
   port: 3000,
+  baseUrl: process.env.BASE_URL ?? 'http://localhost',
   platforms: {
     facebook: {
       enabled: true,
@@ -35,6 +36,10 @@ export const config: Config = {
       botToken: process.env.SLACK_BOT_TOKEN,
       signingSecret: process.env.SLACK_SIGNING_SECRET,
     },
+    youtube: {
+      enabled: true,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    }
   },
 };
-console.log(config)

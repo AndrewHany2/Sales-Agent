@@ -5,6 +5,7 @@ interface PlatformConfig {
 
 interface Config {
   port: number;
+  baseUrl: string | undefined;
   platforms: {
     facebook: PlatformConfig & {
       pageAccessToken?: string;
@@ -32,6 +33,10 @@ interface Config {
       botToken?: string;
       signingSecret?: string;
     };
+    youtube: PlatformConfig & {
+      clientId?: string;
+      clientSecret?: string;
+    }
   };
 }
 
@@ -57,4 +62,20 @@ interface PlatformAdapter {
   handleWebhook(data: unknown): void;
 }
 
-export { PlatformAdapter, SendMessageResult, Message, Config };
+type GoogleTokenResponse = {
+  access_token: string;
+  expires_in: number;
+  refresh_token?: string;
+  scope: string;
+  token_type: 'Bearer';
+  id_token?: string;
+};
+
+type GoogleUserInfo = {
+  sub: string;
+  name?: string;
+  email?: string;
+  picture?: string;
+};
+
+export { PlatformAdapter, SendMessageResult, Message, Config, GoogleTokenResponse, GoogleUserInfo };

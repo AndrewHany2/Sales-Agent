@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { PlatformManager } from '../services/platformManager.service';
 import { config } from '../config';
 import { Logger } from '../utils/logger';
+import axios from 'axios';
+import { GoogleTokenResponse, GoogleUserInfo } from '../types/types';
 
 export const createAuthRoutes = (platformManager: PlatformManager): Router => {
   const router = Router();
@@ -50,7 +52,25 @@ export const createAuthRoutes = (platformManager: PlatformManager): Router => {
           ? `https://developer.twitter.com/en/portal/dashboard`
           : null,
         instructions: 'Get API keys from Twitter Developer Portal'
-      }
+      },
+      youtube: {
+        enabled: config.platforms.youtube.enabled,
+        authUrl: `https://accounts.google.com/o/oauth2/v2/auth?` +
+            new URLSearchParams({
+            client_id: process.env.GOOGLE_CLIENT_ID!,
+            redirect_uri: process.env.YT_REDIRECT_URI!,
+            response_type: 'code',
+            scope: [
+                'openid',
+                'email',
+                'profile',
+                'https://www.googleapis.com/auth/youtube.readonly'
+            ].join(' '),
+            access_type: 'offline',     // ask for refresh_token
+            prompt: 'consent'           // force consent so you reliably get refresh on dev
+            }).toString(),
+      },
+      instructions: 'Sign in with Google to allow reading YouTube data'
     };
 
     res.json({ authUrls });
@@ -118,6 +138,84 @@ export const createAuthRoutes = (platformManager: PlatformManager): Router => {
       message: 'Slack authentication successful. Please save the bot token.',
       code: code as string
     });
+  });
+
+  // Youtube OAuth callback
+  router.get('/youtube/callback', async (req: Request, res: Response) => {
+    const { code, error } = req.query;
+
+    if (error) {
+      Logger.error('YouTube OAuth error', { error });
+      return res.status(400).json({ error: 'YouTube authentication failed' });
+    }
+    if (!code) {
+      return res.status(400).json({ error: 'Authorization code not provided' });
+    }
+
+    try {
+      // 1) Exchange code -> tokens
+      const tokenResp = await axios.post<GoogleTokenResponse>(
+        'https://oauth2.googleapis.com/token',
+        new URLSearchParams({
+          code: String(code),
+          client_id: process.env.GOOGLE_CLIENT_ID!,
+          client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+          redirect_uri: process.env.YT_REDIRECT_URI!,
+          grant_type: 'authorization_code',
+        }),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+
+      const tokens = tokenResp.data;
+
+      // 2) (Optional but useful) Get user profile via OIDC
+      const userInfoResp = await axios.get<GoogleUserInfo>(
+        'https://openidconnect.googleapis.com/v1/userinfo',
+        { headers: { Authorization: `Bearer ${tokens.access_token}` } }
+      );
+      const user = userInfoResp.data;
+
+      Logger.info('YouTube OAuth success', {
+        sub: user.sub,
+        email: user.email,
+        hasRefresh: Boolean(tokens.refresh_token),
+      });
+
+      // 3) Persist tokens (replace with your real persistence)
+      // If your PlatformManager has a save method, use it:
+      // await platformManager.saveToken('youtube', user.sub, {
+      //   accessToken: tokens.access_token,
+      //   refreshToken: tokens.refresh_token,
+      //   expiresIn: tokens.expires_in,
+      //   scope: tokens.scope,
+      //   idToken: tokens.id_token,
+      //   profile: user,
+      // });
+
+      // For now, just return them to the caller (DO NOT do this in production)
+      return res.json({
+        success: true,
+        message: 'YouTube authentication successful.',
+        user,
+        tokens: {
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token, // may be undefined if Google didn’t issue on this run
+          expires_in: tokens.expires_in,
+          scope: tokens.scope,
+          id_token: tokens.id_token,
+        },
+      });
+    } catch (e: any) {
+      Logger.error('YouTube token exchange failed', {
+        status: e?.response?.status,
+        data: e?.response?.data,
+        message: e?.message,
+      });
+      return res.status(500).json({
+        error: 'Failed to exchange code for tokens',
+        details: e?.response?.data || e?.message || 'Unknown error',
+      });
+    }
   });
 
   // Test platform connection
