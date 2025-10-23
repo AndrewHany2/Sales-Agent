@@ -37,3 +37,4 @@ export const config: Config = {
     },
   },
 };
+console.log(config)

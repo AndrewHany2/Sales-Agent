@@ -8,6 +8,9 @@ export class TelegramAdapter extends BaseAdapter {
 
   constructor(config: Config['platforms']['telegram']) {
     super(config);
+    if (!config.botToken) {
+      throw new Error('Telegram botToken is required but not provided');
+    }
     this.baseUrl = `https://api.telegram.org/bot${config.botToken}`;
   }
 
