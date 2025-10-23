@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 interface PlatformConfig {
   enabled: boolean;
   [key: string]: unknown;
@@ -77,5 +79,73 @@ type GoogleUserInfo = {
   email?: string;
   picture?: string;
 };
+
+
+export interface TokenData {
+  accessToken: string;
+  refreshToken?: string;
+  idToken?: string;
+  tokenType?: string;
+  scope?: string;
+  expiresAt?: Date;
+  extra?: Prisma.InputJsonValue;
+}
+
+export interface EncryptedTokenResult {
+  encrypted: string;
+  iv: string;
+  authTag: string;
+}
+
+export interface SaveTokenParams {
+  clientId: string;
+  platform: string;
+  accessToken: string;
+  refreshToken?: string;
+  idToken?: string;
+  tokenType?: string;
+  expiresIn?: number;
+  scope?: string;
+  externalAccountId?: string;
+  externalName?: string;
+  externalHandle?: string;
+  profile?: UserProfile;
+}
+
+export interface UserProfile {
+  email?: string;
+  name?: string;
+  picture?: string;
+  channelId?: string;
+  [key: string]: unknown;
+}
+
+export interface YouTubeChannel {
+  id: string;
+  snippet: {
+    title: string;
+    customUrl?: string;
+    description?: string;
+  };
+}
+
+export interface MetaTokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+export interface TokenRefreshLogParams {
+  connectionId: string;
+  platform: string;
+  success: boolean;
+  errorMessage?: string;
+  oldExpiresAt?: Date;
+  newExpiresAt?: Date;
+}
+
+export interface YouTubeChannelsResponse {
+  items?: YouTubeChannel[];
+}
 
 export { PlatformAdapter, SendMessageResult, Message, Config, GoogleTokenResponse, GoogleUserInfo };

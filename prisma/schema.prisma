@@ -34,46 +34,47 @@ enum ConnectorStatus {
 
 // ---------- RBAC (global) ----------
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  name         String?
-  isActive     Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // tenancy
-  memberships  Membership[]
+  memberships Membership[]
 
   // rbac
-  roles        UserRole[]
+  roles           UserRole[]
+  WebhookEndpoint WebhookEndpoint[]
 }
 
 model Role {
-  id           String            @id @default(cuid())
-  name         String            @unique // e.g. GLOBAL_ADMIN, SUPPORT, AUDITOR
-  description  String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g. GLOBAL_ADMIN, SUPPORT, AUDITOR
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  users        UserRole[]
-  permissions  RolePermission[]
+  users       UserRole[]
+  permissions RolePermission[]
 }
 
 model Permission {
-  id           String            @id @default(cuid())
-  key          String            @unique // e.g. "platform.manage", "webhook.manage", "client.read"
-  description  String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g. "platform.manage", "webhook.manage", "client.read"
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  roles        RolePermission[]
+  roles RolePermission[]
 }
 
 model UserRole {
   userId String
   roleId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
   @@index([roleId])
@@ -82,8 +83,8 @@ model UserRole {
 model RolePermission {
   roleId       String
   permissionId String
-  role         Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission  @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
   @@index([permissionId])
@@ -91,14 +92,14 @@ model RolePermission {
 
 // ---------- Tenancy ----------
 model Client {
-  id            String        @id @default(cuid())
-  name          String        @unique
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  memberships   Membership[]
-  connections   ClientPlatformConnection[]
-  webhookSubs   ClientWebhookSubscription[]
+  memberships Membership[]
+  connections ClientPlatformConnection[]
+  webhookSubs ClientWebhookSubscription[]
 }
 
 model Membership {
@@ -117,16 +118,16 @@ model Membership {
 
 // ---------- Admin-managed platform apps & webhooks ----------
 model PlatformApp {
-  id              String    @id @default(cuid())
-  platform        Platform
-  appName         String
-  clientIdValue   String    // e.g., OAuth client_id / App ID
-  clientSecret    String    // store securely; consider external KMS
-  scopes          String?   // space/comma separated canonical scopes
-  extra           Json?     // any provider-specific metadata
-  isActive        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id            String   @id @default(cuid())
+  platform      Platform
+  appName       String
+  clientIdValue String // e.g., OAuth client_id / App ID
+  clientSecret  String // store securely; consider external KMS
+  scopes        String? // space/comma separated canonical scopes
+  extra         Json? // any provider-specific metadata
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   webhookEndpoint WebhookEndpoint?
   webhookSubs     WebhookSubscription[]
@@ -135,62 +136,96 @@ model PlatformApp {
 }
 
 model WebhookEndpoint {
-  id               String      @id @default(cuid())
-  platformAppId    String      @unique
-  url              String      // your public receiver URL
-  verifyToken      String?     // e.g., Facebook's verify token
-  secret           String?     // signing secret (e.g., X/Twitter, Meta app secret)
-  isActive         Boolean     @default(true)
-  createdByUserId  String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  id              String   @id @default(cuid())
+  platformAppId   String   @unique
+  url             String // your public receiver URL
+  verifyToken     String? // e.g., Facebook's verify token
+  secret          String? // signing secret (e.g., X/Twitter, Meta app secret)
+  isActive        Boolean  @default(true)
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  platformApp      PlatformApp @relation(fields: [platformAppId], references: [id], onDelete: Cascade)
-  createdBy        User?       @relation(fields: [createdByUserId], references: [id])
+  platformApp PlatformApp @relation(fields: [platformAppId], references: [id], onDelete: Cascade)
+  createdBy   User?       @relation(fields: [createdByUserId], references: [id])
 
-  deliveries       WebhookEvent[]
+  deliveries WebhookEvent[]
 }
 
 // Some platforms require app-level subscriptions (admin config)
 model WebhookSubscription {
-  id            String       @id @default(cuid())
+  id            String   @id @default(cuid())
   platformAppId String
-  topic         String       // e.g., "page", "user", "mentions"
-  active        Boolean      @default(true)
+  topic         String // e.g., "page", "user", "mentions"
+  active        Boolean  @default(true)
   extra         Json?
-  createdAt     DateTime     @default(now())
+  createdAt     DateTime @default(now())
 
-  platformApp   PlatformApp  @relation(fields: [platformAppId], references: [id], onDelete: Cascade)
+  platformApp PlatformApp @relation(fields: [platformAppId], references: [id], onDelete: Cascade)
 
   @@unique([platformAppId, topic])
   @@index([platformAppId])
 }
 
+model EncryptedToken {
+  id            String   @id @default(cuid())
+  connectionId  String   @unique
+  encryptedData String // Encrypted JSON containing all sensitive tokens
+  iv            String // Initialization vector for decryption
+  authTag       String // Authentication tag for GCM
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  connection ClientPlatformConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId])
+}
+
+// ---------- Token Refresh History ----------
+model TokenRefreshLog {
+  id           String    @id @default(cuid())
+  connectionId String
+  platform     Platform
+  refreshedAt  DateTime  @default(now())
+  success      Boolean
+  errorMessage String?
+  oldExpiresAt DateTime?
+  newExpiresAt DateTime?
+
+  connection ClientPlatformConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([connectionId])
+  @@index([platform, refreshedAt])
+}
+
 // ---------- Per-client connections/config ----------
 model ClientPlatformConnection {
   // One row per client per platform (or per external account if you allow many)
-  id                 String          @id @default(cuid())
-  clientId           String
-  platform           Platform
-  status             ConnectorStatus @default(DISCONNECTED)
+  id       String          @id @default(cuid())
+  clientId String
+  platform Platform
+  status   ConnectorStatus @default(DISCONNECTED)
 
   // OAuth tokens (rotate/secure these!)
-  accessToken        String?
-  refreshToken       String?
-  tokenType          String?         // "bearer" etc
-  expiresAt          DateTime?
+  accessToken  String?
+  refreshToken String?
+  tokenType    String? // "bearer" etc
+  expiresAt    DateTime?
 
   // The external resource this client chose (page/channel/account)
-  externalAccountId  String?         // e.g., page_id, channel_id
-  externalName       String?
-  externalHandle     String?
-  scopesGranted      String?         // provider-returned scopes
-  extra              Json?           // provider-specific data
+  externalAccountId String? // e.g., page_id, channel_id
+  externalName      String?
+  externalHandle    String?
+  scopesGranted     String? // provider-returned scopes
+  extra             Json? // provider-specific data
 
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
+  encryptedToken EncryptedToken?
+  refreshLogs    TokenRefreshLog[]
 
-  client             Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   // If you allow 1 config per client+platform:
   @@unique([clientId, platform])
@@ -200,18 +235,18 @@ model ClientPlatformConnection {
 
 // If a provider requires per-client subscriptions (e.g., per page/channel)
 model ClientWebhookSubscription {
-  id          String     @id @default(cuid())
-  clientId    String
-  platform    Platform
-  topic       String        // e.g., "page", "comments", "messages"
-  active      Boolean       @default(true)
-  externalId  String?       // subscription id assigned by provider
-  extra       Json?
+  id         String   @id @default(cuid())
+  clientId   String
+  platform   Platform
+  topic      String // e.g., "page", "comments", "messages"
+  active     Boolean  @default(true)
+  externalId String? // subscription id assigned by provider
+  extra      Json?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@unique([clientId, platform, topic])
   @@index([platform])
@@ -219,19 +254,19 @@ model ClientWebhookSubscription {
 
 // ---------- Inbound webhook storage ----------
 model WebhookEvent {
-  id              String          @id @default(cuid())
+  id              String   @id @default(cuid())
   platform        Platform
-  receivedAt      DateTime        @default(now())
-  deliveryId      String?         // provider delivery id if any
-  signature       String?         // raw signature header
+  receivedAt      DateTime @default(now())
+  deliveryId      String? // provider delivery id if any
+  signature       String? // raw signature header
   headers         Json?
-  payload         Json            // raw request body
-  matchedClientId String?         // optional: resolved tenant after processing
-  handled         Boolean         @default(false)
+  payload         Json // raw request body
+  matchedClientId String? // optional: resolved tenant after processing
+  handled         Boolean  @default(false)
   error           String?
 
-  endpointId      String?
-  endpoint        WebhookEndpoint? @relation(fields: [endpointId], references: [id], onDelete: SetNull)
+  endpointId String?
+  endpoint   WebhookEndpoint? @relation(fields: [endpointId], references: [id], onDelete: SetNull)
 
   @@index([platform, receivedAt])
   @@index([matchedClientId])
