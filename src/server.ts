@@ -46,6 +46,10 @@ server.listen(config.port, () => {
   console.log(`  Send:      POST http://localhost:${config.port}/api/send`);
   console.log(`  Messages:  GET  http://localhost:${config.port}/api/messages`);
   console.log(`  Platforms: GET  http://localhost:${config.port}/api/platforms`);
+  console.log(`\nAuth endpoints:`);
+  console.log(`  Auth URLs: GET  http://localhost:${config.port}/auth/urls`);
+  console.log(`  Status:    GET  http://localhost:${config.port}/auth/status`);
+  console.log(`  Test:      POST http://localhost:${config.port}/auth/test/:platform`);
 });
 
 export { app, server, platformManager, messageBus };

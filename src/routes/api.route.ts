@@ -38,6 +38,62 @@ export const createApiRoutes = (
     res.json({ messages, count: messages.length });
   });
 
+  // Get forwarded messages only
+  router.get('/messages/forwarded', (req: Request, res: Response) => {
+    const limit = parseInt(req.query.limit as string) || 50;
+    const messages = messageBus.getMessages(limit * 2) // Get more to filter
+      .filter((m: any) => m.platform === 'telegram' && m.isForwarded)
+      .slice(-limit);
+
+    res.json({ messages, count: messages.length });
+  });
+
+  // Get messages by original sender
+  router.get('/messages/from/:userId', (req: Request, res: Response) => {
+    const { userId } = req.params;
+    const limit = parseInt(req.query.limit as string) || 50;
+    
+    const messages = messageBus.getMessages(limit * 5)
+      .filter((m: any) => 
+        m.platform === 'telegram' && 
+        m.isForwarded &&
+        (m.forwardedFrom?.userId === userId || 
+        m.forwardedFrom?.username === userId)
+      )
+      .slice(-limit);
+
+    res.json({ messages, count: messages.length });
+  });
+
+  // Reply to forwarded message
+  router.post('/messages/reply', async (req: Request, res: Response) => {
+    const { messageId, text } = req.body;
+
+    if (!messageId || !text) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: messageId, text' 
+      });
+    }
+
+    // Find the message
+    const messages = messageBus.getMessages(1000);
+    const originalMessage = messages.find((m: any) => m.messageId === messageId);
+
+    if (!originalMessage || !originalMessage.chatId) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    // Send reply
+    const adapter = platformManager.getAdapter('telegram') as any;
+    const result = await adapter.sendMessage(
+      originalMessage.chatId,
+      text,
+      { replyToMessageId: messageId }
+    );
+
+    return res.json(result);
+  });
+
   // Get supported platforms
   router.get('/platforms', (_req: Request, res: Response) => {
     const platforms = Object.keys(config.platforms).map((name) => ({
