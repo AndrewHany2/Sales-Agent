@@ -4,6 +4,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { createApp } from './app';
 import { config } from './config';
 import { Logger } from './utils/logger';
+import { TokenRefreshService } from './services/tokenRefresh.service';
 
 const { app, messageBus, platformManager } = createApp();
 
@@ -30,6 +31,11 @@ io.on('connection', (socket) => {
 messageBus.on('message', (message) => {
   io.emit('message', message);
 });
+
+const refreshService = new TokenRefreshService();
+setInterval(() => {
+  refreshService.refreshExpiringTokens();
+}, 15 * 60 * 1000);
 
 // Start server
 server.listen(config.port, () => {

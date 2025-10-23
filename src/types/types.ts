@@ -148,4 +148,59 @@ export interface YouTubeChannelsResponse {
   items?: YouTubeChannel[];
 }
 
+export interface YouTubeVideo {
+  id: string;
+  snippet: {
+    title: string;
+    description: string;
+    publishedAt: string;
+    channelId: string;
+  };
+  statistics: {
+    viewCount: string;
+    likeCount: string;
+    commentCount: string;
+  };
+}
+
+export interface YouTubeComment {
+  id: string;
+  snippet: {
+    textDisplay: string;
+    textOriginal: string;
+    authorDisplayName: string;
+    authorChannelId?: {
+      value: string;
+    };
+    likeCount: number;
+    publishedAt: string;
+    updatedAt: string;
+  };
+}
+
+export interface YouTubeCommentThread {
+  id: string;
+  snippet: {
+    topLevelComment: YouTubeComment;
+    totalReplyCount: number;
+    videoId: string;
+  };
+}
+
+export interface LiveChatMessage {
+  id: string;
+  snippet: {
+    displayMessage: string;
+    publishedAt: string;
+    authorChannelId: string;
+  };
+  authorDetails: {
+    displayName: string;
+    channelId: string;
+    isChatModerator: boolean;
+    isChatOwner: boolean;
+  };
+}
+
+
 export { PlatformAdapter, SendMessageResult, Message, Config, GoogleTokenResponse, GoogleUserInfo };

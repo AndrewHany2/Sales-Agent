@@ -41,6 +41,22 @@ export class TokenStorageService {
       const { encrypted, iv, authTag } = this.encryption.encrypt(tokenData);
 
       const platformEnum = params.platform as Platform;
+      
+      // Ensure client exists BEFORE transaction
+      const existingClient = await prisma.client.findUnique({
+        where: { id: params.clientId },
+      });
+
+      if (!existingClient) {
+        await prisma.client.create({
+          data: {
+            id: params.clientId,
+            name: params.externalName 
+              ? `${params.externalName} (${params.platform})` 
+              : `Client ${params.clientId.substring(0, 8)}`,
+          },
+        });
+      }
 
       // Use transaction to ensure atomicity
       await prisma.$transaction(async (tx) => {

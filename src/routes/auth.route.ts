@@ -5,7 +5,7 @@ import { Logger } from '../utils/logger';
 import axios, { AxiosResponse } from 'axios';
 import { GoogleTokenResponse, GoogleUserInfo, YouTubeChannelsResponse } from '../types/types';
 import { TokenStorageService } from '../services/tokenStorage.service';
-import { PLATFORMS } from '../constants';
+import { Platform } from '@prisma/client';
 
 export const createAuthRoutes = (platformManager: PlatformManager): Router => {
   const router = Router();
@@ -66,7 +66,9 @@ export const createAuthRoutes = (platformManager: PlatformManager): Router => {
                 'openid',
                 'email',
                 'profile',
-                'https://www.googleapis.com/auth/youtube.readonly'
+                'https://www.googleapis.com/auth/youtube.readonly',
+                'https://www.googleapis.com/auth/youtube.force-ssl',
+                'https://www.googleapis.com/auth/youtube',
             ].join(' '),
             access_type: 'offline',     // ask for refresh_token
             prompt: 'consent'           // force consent so you reliably get refresh on dev
@@ -195,7 +197,7 @@ export const createAuthRoutes = (platformManager: PlatformManager): Router => {
       const tokenStorage = new TokenStorageService();
       await tokenStorage.saveToken({
         clientId,
-        platform: PLATFORMS.YOUTUBE,
+        platform: Platform.YOUTUBE,
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
         idToken: tokens.id_token,
