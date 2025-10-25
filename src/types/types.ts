@@ -8,6 +8,7 @@ interface PlatformConfig {
 interface Config {
   port: number;
   baseUrl: string | undefined;
+  frontEndUrl: string | undefined;
   platforms: {
     facebook: PlatformConfig & {
       pageAccessToken?: string;

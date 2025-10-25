@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 import { MessageBus } from './services/messageBus.service';
 import { PlatformManager } from './services/platformManager.service';
@@ -12,6 +13,7 @@ export const createApp = (): {
   const app: Application = express();
 
   // Middleware
+  app.use(cors())
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
@@ -30,7 +32,7 @@ export const createApp = (): {
   });
 
   // Routes
-  app.use('/', createRoutes(platformManager, messageBus));
+  app.use('/api/v1', createRoutes(platformManager, messageBus));
 
   // Error handling
   app.use(notFoundHandler);

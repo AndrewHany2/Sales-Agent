@@ -3,43 +3,45 @@ import { Config } from '../types/types';
 export const config: Config = {
   port: 3000,
   baseUrl: process.env.BASE_URL ?? 'http://localhost',
+  frontEndUrl: process.env.FRONT_END_URL ?? 'http://localhost:8080',
   platforms: {
     facebook: {
-      enabled: true,
+      enabled: false,
       pageAccessToken: process.env.FB_PAGE_ACCESS_TOKEN,
       verifyToken: process.env.FB_VERIFY_TOKEN,
       apiVersion: 'v18.0',
     },
     instagram: {
-      enabled: true,
+      enabled: false,
       accessToken: process.env.IG_ACCESS_TOKEN,
       businessAccountId: process.env.IG_BUSINESS_ACCOUNT_ID,
     },
     twitter: {
-      enabled: true,
+      enabled: false,
       apiKey: process.env.TWITTER_API_KEY,
       apiSecret: process.env.TWITTER_API_SECRET,
       accessToken: process.env.TWITTER_ACCESS_TOKEN,
       accessSecret: process.env.TWITTER_ACCESS_SECRET,
     },
     telegram: {
-      enabled: true,
+      enabled: false,
       botToken: process.env.TELEGRAM_BOT_TOKEN,
     },
     whatsapp: {
-      enabled: true,
+      enabled: false,
       phoneNumberId: process.env.WA_PHONE_NUMBER_ID,
       accessToken: process.env.WA_ACCESS_TOKEN,
     },
     slack: {
-      enabled: true,
+      enabled: false,
       botToken: process.env.SLACK_BOT_TOKEN,
       signingSecret: process.env.SLACK_SIGNING_SECRET,
     },
     youtube: {
       enabled: true,
       clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri: process.env.YT_REDIRECT_URI,
     }
   },
 };

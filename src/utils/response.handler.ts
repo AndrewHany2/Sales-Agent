@@ -12,7 +12,7 @@ interface SuccessResponseParams<T> {
   message?: string;
 }
 const successResponse = <T>(
-  req: Request,
+  _req: Request,
   res: Response,
   params: SuccessResponseParams<T>
 ): Response<ApiResponse<T>> => {
