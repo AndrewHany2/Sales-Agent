@@ -8,7 +8,7 @@ import { createClientRoutes } from './client.route';
 import { createPlatformRoutes } from './platform.route';
 import { createMessageRoutes } from './message.route';
 
-export const createApiRoutes = (
+export const createRoutes = (
   platformManager: PlatformManager,
   messageBus: MessageBus
 ): Router => {
